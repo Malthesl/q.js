@@ -37,7 +37,7 @@ Here a short guide to q(), and q.js' other prototypes:
 
 Create a HTMLElement from a selector.
 
-### `selector`:
+#### `selector`:
 
 A CSS Like Selector
 
@@ -48,7 +48,7 @@ Supports:
 - Attributes: `[attribute=value]`
 - *Text: `"text"`
 
-### `blueprint`:
+#### `blueprint`:
 
 An object assigned to the HTMLElement's DOM.
 
@@ -59,19 +59,19 @@ Aliases:
 
 You can also use *blueprint*.children (or .c alias): [HTMLElement, ...] to append children to the element after creation.
 
-#### HTMLElement.q(*string* `selector`, *optional: object* `blueprint`)
+### HTMLElement.q(*string* `selector`, *optional: object* `blueprint`)
 
 *returns `HTMLElement`*
 
 Append a child to a HTMLElement, generated from a selector.
 
-#### HTMLElement.s(*string* `selector`, *optional: object* `blueprint`)
+### HTMLElement.s(*string* `selector`, *optional: object* `blueprint`)
 
 *returns `HTMLElement`*
 
 Append a sibling to a HTMLElement, generated from a selector.
 
-#### HTMLElement.p(*string* `selector`, *optional: object* `blueprint`)
+### HTMLElement.p(*string* `selector`, *optional: object* `blueprint`)
 
 *returns `HTMLElement`*
 
