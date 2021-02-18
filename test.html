@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Quickly test q.js</title>
+</head>
+<body>
+<script src="q.js"></script>
+<script>
+  // Test 1: Append <div>
+  document.body.q();
+  // Test 2: Append <button id="test" disabled><img src="test"></button>
+  document.body.q('button#test:disabled').q('img[src=test]');
+  // Test 3: Append <a><b></b><c></c></a><d></d>
+  document.body.q('a').q('b').s('c').p('d');
+</script>
+</body>
+</html>
