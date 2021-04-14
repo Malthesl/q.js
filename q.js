@@ -1,33 +1,32 @@
 /**
- *   Q.JS  v1.2
+ *   Q.JS  v1.3
  *   By Malthe Laursen
  *   mtsl.dk
  *   ---
- *   Documentation at mtsl.dk/q   (Site not available yet!)
+ *   Documentation at mtsl.dk/q   (Site still not available yet, refer to README!)
  */
 function q(query, blueprint) {
   if (!blueprint) blueprint = {};
-
   if (typeof query === 'object') {
     blueprint = query;
     query = '';
   }
 
-  let x = {index: 0, input: query ? query.trimLeft() : 'div'};
+  let x = { index: 0, input: query ? query.trimLeft() : 'div' };
 
   let start = x.input.match(/[.#\[:"]/);
   let el = document.createElement(
     blueprint.tag ||
-    (!start
-      ? x.input.trim()
-      : start.index === 0
+      (!start
+        ? x.input.trim()
+        : start.index === 0
         ? 'div'
         : x.input.substring(0, start.index))
   );
 
   let i = 0;
-  while (i++ < 10000) {
-    if (i === 10000)
+  while (i++ < 50000) {
+    if (i === 50000)
       console.warn('Q.JS Stuck in loop with input: "' + query + '"');
     let start = x.input.substring(x.index).match(/[.#\[:"]/);
     if (!start) break;
@@ -47,7 +46,7 @@ function q(query, blueprint) {
       case '"':
         end = x.input
           .substring(x.index + start.index + 1)
-          .match(/(?<!\/|\\)(?:\/\/|\\\\)*"/);
+          .match(/"/);
         value = x.input
           .substring(x.index + start.index + 1)
           .substring(0, end.index)
@@ -62,29 +61,21 @@ function q(query, blueprint) {
           .substring(0, end ? end.index : x.input.length);
         break;
     }
-    switch (mode) {
-      // Classes
-      case '.':
-        el.classList.add(value);
-        break;
-      // ID
-      case '#':
-        el.id = value;
-        break;
-      // Attribute
-      case '[':
-        value = value.substring(0, value.length).split('=');
-        el.setAttribute(value[0], value[1] || true);
-        break;
-      // Empty Attribute like :disabled
-      case ':':
-        el.setAttribute(value, '');
-        break;
-      // Inner Text
-      case '"':
-        el.innerText = value;
-        break;
+
+    // Classes
+    if (mode === '.') el.classList.add(value);
+    // ID's
+    else if (mode === '#') el.id = value;
+    // Attributes
+    else if (mode === '[') {
+      value = value.substring(0, value.length).split('=');
+      el.setAttribute(value[0], value[1] || true);
     }
+
+    // Name-Only Attributes
+    else if (mode === ':') el.setAttribute(value, '');
+    // Text Content
+    else if (mode === '"') el.innerText = value;
 
     if (!end) break;
     x.index += start.index + end.index + 1;
@@ -127,8 +118,8 @@ HTMLElement.prototype.q = function (query, o) {
   return el;
 };
 
-HTMLElement.prototype.s = function (query, o) {
 // Add as sibling
+HTMLElement.prototype.s = function (query, o) {
   let el = q(query, o);
   this.parentElement.appendChild(el);
   return el;
