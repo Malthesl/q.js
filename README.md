@@ -6,24 +6,27 @@ Let's start off with an example of what q.js can be used for:
 
 ```js
 products.forEach(product => {
-  q('.product')
+  productContainer.q('.product')
     .q('img.product-image', {src: product.thumb})
-    .s('.product-brand', {innerText: product.brand})
-    .s('.product-name', {innerText: product.name})
-    .s('.product-description', {innerText: product.description})
-    .s('button.add-to-basket"Add to basket"', {onclick: () => addItemToBasket(product.itemId)});
+    .s('.product-brand', {text: product.brand})
+    .s('.product-name', {text: product.name})
+    .s('.product-description', {text: product.description})
+    .s('button.add-to-basket', {text: 'Add to basket', onclick() { addItemToBasket(product.itemId) });
 });
 ```
 
-would result in ->
+would result in something like this ->
 
 ```html
-<div class="product">
-  <img src="/i/product.png">
-  <div class="product-brand">CoolProducts™</div>
-  <div class="product-name">The Cool Product</div>
-  <div class="product-description">A really f***ing awesome cool product</div>
-  <button class="product-description">Add to basket</button>
+<div id="products">
+  <div class="product">
+    <img src="/i/product.png">
+    <div class="product-brand">CoolProducts™</div>
+    <div class="product-name">The Cool Product</div>
+    <div class="product-description">A really f***ing awesome cool product</div>
+    <button class="product-description">Add to basket</button>
+  </div>
+  ...
 </div>
 ```
 
@@ -57,7 +60,7 @@ Aliases:
 - html -> innerHTML
 - css -> style
 
-You can also use *blueprint*.children (or .c alias): [HTMLElement, ...] to append children to the element after creation.
+You can also use *blueprint*.children (or .c alias), which is an array containing HTMLElements to append as children to the element after it's creation.
 
 ### HTMLElement.q(*string* selector, *optional: object* blueprint)
 
