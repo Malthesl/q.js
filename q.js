@@ -1,5 +1,5 @@
 /**
- *   Q.JS  v1.3
+ *   Q.JS  v1.3.1
  *   By Malthe Laursen
  *   mtsl.dk
  *   ---
@@ -105,7 +105,7 @@ function q(query, blueprint) {
 
     let children = blueprint.children || blueprint.c;
     if (children)
-      for (let i = 0; i < children.length; i++) el.appendChild(children[i]);
+      for (let i = 0; i < children.length; i++) children[i] && el.appendChild(children[i]);
   }
 
   return el;
