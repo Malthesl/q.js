@@ -5,70 +5,61 @@
  *   ---
  *   Documentation at mtsl.dk/q   (Site still not available yet, refer to README!)
  */
-function q(a, b, c, d, bpo) {
-  let query, text, childNodes, blueprint;
-
-  if (Array.isArray(a)) childNodes = a;
-  else if (typeof a === 'object') blueprint = a;
-  else query = a;
-
-  if (b !== undefined) {
-    if (Array.isArray(b)) childNodes = b;
-    else if (typeof b === 'object') blueprint = b;
-    else if (text === undefined) text = b;
-  }
-
-  if (c !== undefined) {
-    if (Array.isArray(c)) childNodes = c;
-    else if (typeof c === 'object') blueprint = c;
-    else if (text === undefined) text = c;
-  }
-
-  if (d !== undefined) {
-    if (Array.isArray(d)) childNodes = d;
-    else if (typeof d === 'object') blueprint = d;
-    else if (text === undefined) text = d;
-  }
-
+function q(query, blueprint) {
   if (!blueprint) blueprint = {};
+  if (typeof query === 'object') {
+    blueprint = query;
+    query = '';
+  }
 
-  Object.assign(blueprint, bpo);
-
-  let x = {index: 0, input: query ? query.trimLeft() : 'div'};
+  let x = { index: 0, input: query ? query.trimLeft() : 'div' };
 
   let start = x.input.match(/[.#\[:"]/);
   let el = document.createElement(
     blueprint.tag ||
-    (!start
-      ? x.input.trim()
-      : start.index === 0
+      (!start
+        ? x.input.trim()
+        : start.index === 0
         ? 'div'
         : x.input.substring(0, start.index))
   );
 
   let i = 0;
-  while (i++ < 1000) {
-    if (i === 1000)
+  while (i++ < 50000) {
+    if (i === 50000)
       console.warn('Q.JS Stuck in loop with input: "' + query + '"');
-    let start = x.input.substring(x.index).match(/[.#\[]/);
+    let start = x.input.substring(x.index).match(/[.#\[:"]/);
     if (!start) break;
 
     let mode = x.input[x.index + start.index],
       value,
       end;
 
-    if (mode === '[') {
-      end = x.input.substring(x.index + start.index + 1).match(/]/);
-      value = x.input
-        .substring(x.index + start.index + 1)
-        .substring(0, end.index);
-      end.index += 1;
-    }
-    else {
-      end = x.input.substring(x.index + start.index + 1).match(/[.#\[]/);
-      value = x.input
-        .substring(x.index + start.index + 1)
-        .substring(0, end ? end.index : x.input.length);
+    switch (mode) {
+      case '[':
+        end = x.input.substring(x.index + start.index + 1).match(/]/);
+        value = x.input
+          .substring(x.index + start.index + 1)
+          .substring(0, end.index);
+        end.index += 1;
+        break;
+      case '"':
+        end = x.input
+          .substring(x.index + start.index + 1)
+          .match(/"/);
+        value = x.input
+          .substring(x.index + start.index + 1)
+          .substring(0, end.index)
+          .replace(/\/(?!\/)/g, '')
+          .replace(/\\(?!\\)/g, '');
+        end.index += 1;
+        break;
+      default:
+        end = x.input.substring(x.index + start.index + 1).match(/[.#\[:"]/);
+        value = x.input
+          .substring(x.index + start.index + 1)
+          .substring(0, end ? end.index : x.input.length);
+        break;
     }
 
     // Classes
@@ -81,6 +72,11 @@ function q(a, b, c, d, bpo) {
       el.setAttribute(value[0], value[1] || true);
     }
 
+    // Name-Only Attributes
+    else if (mode === ':') el.setAttribute(value, '');
+    // Text Content
+    else if (mode === '"') el.innerText = value;
+
     if (!end) break;
     x.index += start.index + end.index + 1;
   }
@@ -91,28 +87,23 @@ function q(a, b, c, d, bpo) {
     delete tba.css;
     delete tba.children;
     delete tba.c;
-    delete tba.rc;
-    delete tba.rac;
-    delete tba.rnc;
     delete tba.text;
     delete tba.content;
     delete tba.innerText;
     delete tba.html;
     delete tba.innerHTML;
 
-    let content;
+    if ((content = blueprint.text || blueprint.content || blueprint.innerText))
+      el.innerText = content;
     if ((content = blueprint.html || blueprint.innerHTML))
       el.innerHTML = content;
-    else if ((content = text ?? blueprint.text ?? blueprint.content ?? blueprint.innerText) !== undefined)
-      el.innerText = content;
 
     Object.assign(el, tba);
 
     if (blueprint.style || blueprint.css)
       Object.assign(el.style, blueprint.style || blueprint.css);
 
-    let children = childNodes || blueprint.children || blueprint.c || blueprint.rc || blueprint.rac || blueprint.rnc;
-    let returns = [];
+    let children = blueprint.children || blueprint.c;
     if (children)
       for (let i = 0; i < children.length; i++) {
         if (children[i] instanceof HTMLElement) {
@@ -128,37 +119,26 @@ function q(a, b, c, d, bpo) {
         }
       }
 
-    if (returns.length > 0) {
-      returns._qOwnParent = el;
-      return returns;
-    }
-  }
-
-  el._qOwnParent = el;
   return el;
 }
 
-function qn(n, a, b, c, d) {
-  return q(a, b, c, d, {name: n});
-}
-
 // Add as child
-HTMLElement.prototype.q = function (a, b, c, d) {
-  let el = q(a, b, c, d);
-  this.appendChild(el._qOwnParent);
+HTMLElement.prototype.q = function (query, o) {
+  let el = q(query, o);
+  this.appendChild(el);
   return el;
 };
 
 // Add as sibling
-HTMLElement.prototype.s = function (a, b, c) {
-  let el = q(a, b, c);
+HTMLElement.prototype.s = function (query, o) {
+  let el = q(query, o);
   this.parentElement.appendChild(el);
   return el;
 };
 
 // Add as parent's sibling
-HTMLElement.prototype.p = function (a, b, c, d) {
-  let el = q(a, b, c, d);
+HTMLElement.prototype.p = function (query, o) {
+  let el = q(query, o);
   this.parentElement.parentElement.appendChild(el);
   return el;
 };

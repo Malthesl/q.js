@@ -6,24 +6,27 @@ Let's start off with an example of what q.js can be used for:
 
 ```js
 products.forEach(product => {
-  q('.product')
+  productContainer.q('.product')
     .q('img.product-image', {src: product.thumb})
-    .s('.product-brand', {innerText: product.brand})
-    .s('.product-name', {innerText: product.name})
-    .s('.product-description', {innerText: product.description})
-    .s('button.add-to-basket"Add to basket"', {onclick: () => addItemToBasket(product.itemId)});
+    .s('.product-brand', {text: product.brand})
+    .s('.product-name', {text: product.name})
+    .s('.product-description', {text: product.description})
+    .s('button.add-to-basket', {text: 'Add to basket', onclick() { addItemToBasket(product.itemId) });
 });
 ```
 
-would result in ->
+would result in something like this ->
 
 ```html
-<div class="product">
-  <img src="/i/product.png">
-  <div class="product-brand">CoolProducts™</div>
-  <div class="product-name">The Cool Product</div>
-  <div class="product-description">A really f***ing awesome cool product</div>
-  <button class="product-description">Add to basket</button>
+<div id="products">
+  <div class="product">
+    <img src="/i/product.png">
+    <div class="product-brand">CoolProducts™</div>
+    <div class="product-name">The Cool Product</div>
+    <div class="product-description">A really f***ing awesome cool product</div>
+    <button class="product-description">Add to basket</button>
+  </div>
+  ...
 </div>
 ```
 
@@ -46,18 +49,34 @@ Supports:
 - Classes: `.class`
 - Empty Attributes: `:attribute`
 - Attributes: `[attribute=value]`
-- *Text: `"text"`
+- Text: `"text"` (Avoid using this as it might be removed in the future. For any kind of user input, (or text that isn't hardcoded), please use the text property instead to avoid security problems)
 
 #### `blueprint`:
 
-An object assigned to the HTMLElement's DOM.
+An object assigned to the HTMLElement's DOM Object.
 
 Aliases:
 - text, content -> innerText
 - html -> innerHTML
 - css -> style
 
-You can also use *blueprint*.children (or .c alias): [HTMLElement, ...] to append children to the element after creation.
+**Adding children with blueprint object**
+
+You can also use *blueprint*.children (or .c alias), which is an array containing HTMLElements to append as children to the element after it's creation.
+
+The example above would look something like this, and is much easier to read if you have many children with children:
+
+```js
+products.forEach(product => {
+  productContainer.q('.product', {children: [
+    q('img.product-image', {src: product.thumb}),
+    q('.product-brand', {text: product.brand}),
+    q('.product-name', {text: product.name}),
+    q('.product-description', {text: product.description}),
+    q('button.add-to-basket', {text: 'Add to basket', onclick() { addItemToBasket(product.itemId) }),
+  ]});
+});
+```
 
 ### HTMLElement.q(*string* selector, *optional: object* blueprint)
 
@@ -76,3 +95,9 @@ Append a sibling to a HTMLElement, generated from a selector.
 *returns `HTMLElement`*
 
 Append a parent sibling to a HTMLElement, generated from a selector.
+
+### Feedback
+
+Find bugs or weird behavior? Just create an issue.
+
+This is also my first time writing a documentation, so any feedback on that is appreciated.
