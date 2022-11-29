@@ -1,3 +1,5 @@
+# Archived because of Malthesl/2q.js superseding this project
+
 # q.js
 
 q.js includes multiple DOM tools, mainly the q() method for creating DOM Elements.
